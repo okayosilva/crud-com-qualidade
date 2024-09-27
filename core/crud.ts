@@ -3,11 +3,13 @@ import { v4 as uuid } from "uuid";
 
 const DB_FILE_PATH = "./core/db";
 
+type UUID = string;
+
 interface Todo {
+  id: UUID;
   date: string;
   content: string;
   done: boolean;
-  id: string;
 }
 
 function create(content: string) {
@@ -37,7 +39,7 @@ function getTodoList(): Array<Todo> {
   return read();
 }
 
-function update(id: string, new_content: Partial<Todo>): Todo {
+function update(id: UUID, new_content: Partial<Todo>): Todo {
   let todoUpdated;
   const todoList = getTodoList();
   todoList.forEach((currentTodoUpdated) => {
@@ -66,9 +68,32 @@ function update(id: string, new_content: Partial<Todo>): Todo {
   return todoUpdated;
 }
 
-function updateContentTodoById(id: string, newContent: string) {
+function updateContentTodoById(id: UUID, newContent: string) {
   const todoUpdated = update(id, { content: newContent });
   return todoUpdated;
+}
+
+function deleteTodoById(id: UUID) {
+  const todoList = getTodoList();
+
+  const isTodoValid = todoList.map((todo) => todo.id === id);
+  
+  if (!isTodoValid) {
+    throw new Error("No todo found");
+  }
+
+  const todoListUpdated = todoList.filter((todo) => todo.id !== id);
+
+  fs.writeFileSync(
+    DB_FILE_PATH,
+    JSON.stringify(
+      {
+        todoList: todoListUpdated,
+      },
+      null,
+      2
+    )
+  );
 }
 
 function read(): Array<Todo> {
@@ -93,4 +118,5 @@ const todo4 = create("Hello World 4");
 update(todo3.id, { content: "Hello World 3 updated", done: true });
 updateContentTodoById(todo4.id, "Hello World 4 updated");
 
+deleteTodoById(todo3.id);
 console.log(read());
