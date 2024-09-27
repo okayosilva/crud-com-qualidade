@@ -1,4 +1,6 @@
 import fs from "fs";
+import { v4 as uuid } from "uuid";
+
 const DB_FILE_PATH = "./core/db";
 
 interface Todo {
@@ -8,12 +10,12 @@ interface Todo {
   id: string;
 }
 
-function create(content: string, id: string) {
+function create(content: string) {
   const todo: Todo = {
+    id: uuid(),
     date: new Date().toISOString(),
     content,
     done: false,
-    id,
   };
 
   const todoList: Array<Todo> = [...read(), todo];
@@ -28,31 +30,45 @@ function create(content: string, id: string) {
       2
     )
   );
-  return content;
+  return todo;
 }
 
-function update(id: string, new_content: string) {
-  const todoList = read();
-  const todo = todoList.find((todo) => todo.id === id);
+function getTodoList(): Array<Todo> {
+  return read();
+}
 
-  if (!todo) {
-    throw new Error("Todo not found");
-  }
+function update(id: string, new_content: Partial<Todo>): Todo {
+  let todoUpdated;
+  const todoList = getTodoList();
+  todoList.forEach((currentTodoUpdated) => {
+    const isTodoUpdated = currentTodoUpdated.id === id;
 
-  const updated_todo = {
-    ...todo,
-    content: new_content,
-    date: new Date().toISOString(),
-  };
-
-  const updated_todo_list = todoList.map((todo) =>
-    todo.id === id ? updated_todo : todo
-  );
+    if (isTodoUpdated) {
+      todoUpdated = Object.assign(currentTodoUpdated, new_content);
+    }
+  });
 
   fs.writeFileSync(
     DB_FILE_PATH,
-    JSON.stringify({ todoList: updated_todo_list }, null, 2)
+    JSON.stringify(
+      {
+        todoList,
+      },
+      null,
+      2
+    )
   );
+
+  if (!todoUpdated) {
+    throw new Error("Please, provide another todo id");
+  }
+
+  return todoUpdated;
+}
+
+function updateContentTodoById(id: string, newContent: string) {
+  const todoUpdated = update(id, { content: newContent });
+  return todoUpdated;
 }
 
 function read(): Array<Todo> {
@@ -68,8 +84,13 @@ function CLEAR_DB() {
 }
 
 CLEAR_DB();
-create("Hello World", "1");
-create("Hello World", "2");
-update("1", "Hello World 2");
+create("Hello World 1");
+create("Hello World 2");
+
+const todo3 = create("Hello World 3");
+const todo4 = create("Hello World 4");
+
+update(todo3.id, { content: "Hello World 3 updated", done: true });
+updateContentTodoById(todo4.id, "Hello World 4 updated");
 
 console.log(read());
