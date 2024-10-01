@@ -97,7 +97,7 @@ function deleteTodoById(id: UUID) {
   );
 }
 
-function read(): Array<Todo> {
+export function read(): Array<Todo> {
   const db_content_String = fs.readFileSync(DB_FILE_PATH, "utf-8");
   const db_content = JSON.parse(db_content_String || "{}");
 
