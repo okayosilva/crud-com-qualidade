@@ -4,15 +4,6 @@ import { v4 as uuid } from "uuid";
 
 const DB_FILE_PATH = "./core/db";
 
-type UUID = string;
-
-interface Todo {
-  id: UUID;
-  date: string;
-  content: string;
-  done: boolean;
-}
-
 function create(content: string) {
   const todo: Todo = {
     id: uuid(),

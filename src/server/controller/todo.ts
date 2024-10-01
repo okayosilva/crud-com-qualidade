@@ -7,12 +7,27 @@ function get(request: NextApiRequest, response: NextApiResponse) {
     todos: ALL_TODOS,
   });
 }
-function post() {}
 
-function put() {}
+function getById(request: NextApiRequest, response: NextApiResponse) {
+  const { id } = request.query;
+  const todoById = read().find((todo) => todo.searchId === id);
+
+  if (!todoById) {
+    response.status(404).json({
+      message: "Todo not found",
+    });
+    return;
+  }
+
+  response.status(200).json({
+    todo: todoById,
+  });
+}
+// function post() {}
+
+// function put() {}
 
 export const todoController = {
   get,
-  post,
-  put,
+  getById,
 };
