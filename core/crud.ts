@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import fs from "fs";
 import { v4 as uuid } from "uuid";
 
@@ -77,7 +78,7 @@ function deleteTodoById(id: UUID) {
   const todoList = getTodoList();
 
   const isTodoValid = todoList.map((todo) => todo.id === id);
-  
+
   if (!isTodoValid) {
     throw new Error("No todo found");
   }
